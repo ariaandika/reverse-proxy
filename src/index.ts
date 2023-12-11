@@ -30,13 +30,13 @@ async function main() {
         // TODO: better config error handling
         // TODO: better logging
 
-        const originHeader = request.headers.get("origin")
-        const domainConfig = process.configuration.server?.find(e=>e.domain === originHeader)
+        const hostHeader = request.headers.get("host")
+        const domainConfig = process.configuration.server?.find(e=>e.domain === hostHeader)
 
         if (!domainConfig) {
           res = new Response("Not Found", { status: 404 })
 
-        } else if (originHeader && "pass" in domainConfig) { 
+        } else if (hostHeader && "pass" in domainConfig) { 
           res = await proxyPass(request, domainConfig)
 
         } else if ("static" in domainConfig) {
