@@ -31,6 +31,12 @@ declare global {
 }
 
 export function postResponse(res: Response) {
+  
+  // @TODO: maybe there better approach
+  if (res.headers.has("date")) {
+    res.headers.delete("date")
+  }
+
   return res
 }
 
@@ -54,7 +60,7 @@ export function validatePass(req: Request, config: PassConfig) {
   let ok = true
 
   if (config.domain) {
-    ok = req.headers.get("origin") === config.domain
+    ok = req.headers.get("host") === config.domain
   }
 
   return ok
