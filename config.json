@@ -1,0 +1,23 @@
+{
+  "server": [
+    {
+      "port": "80",
+      "domain": "example.com",
+      "pass": "http://localhost:8080"
+    },
+    {
+      "port": "443",
+      "domain": "example.com",
+      "pass": "http://localhost:8080"
+    },
+    {
+      "port": "443",
+      "domain": "static.example.com",
+      "path": "/static",
+      "static": "/var/www/static"
+    }
+  ],
+
+  "tls_key": "",
+  "tls_cert": ""
+}

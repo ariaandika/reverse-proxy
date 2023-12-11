@@ -1,0 +1,11 @@
+{
+  "name": "bun-template",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "1.0.15"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
