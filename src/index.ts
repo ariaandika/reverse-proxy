@@ -1,51 +1,52 @@
 import "./process"
+import "./action";
 import { reloadConfig } from "./config"
-import { proxyPass, postResponse, serveStatic } from "./lib"
+import { postResponse } from "./lib"
+import { getAction } from "./type";
 
 async function main() {
+  const port = process.env.PORT;
+
+  if (!port) {
+    console.error("PORT env variable is required")
+    process.exit(1)
+  }
+
+  // CONFIG
   console.log("Api Gateway Server")
-  await reloadConfig()
+  await reloadConfig(true)
 
-  const tls = process.configuration.tls_cert && process.configuration.tls_key ? {
-    key: Bun.file(process.configuration.tls_key || ""),
-    cert: Bun.file(process.configuration.tls_cert || ""),
-  } : void 0
+  // TLS
+  const tlsKey = process.cfg.domain?.tlsKey
+  const tlsCert = process.cfg.domain?.tlsCert
 
+  const tls = tlsCert && tlsKey ? {
+    key: Bun.file(tlsKey),
+    cert: Bun.file(tlsCert),
+  } : void 0;
+
+  const isTls = tls && await tls.key.exists() && await tls.cert.exists();
+
+  isTls && console.log(`tls key: ${tlsKey}, tls cert: ${tlsCert}`);
+
+  const action = getAction()
+
+  if (!action) {
+    console.error("Unhandled error, no action found for current config",process.cfg)
+    process.exit(1)
+  }
 
   const server = Bun.serve({
-    tls,
-    port: 443,
+    tls: isTls ? tls : undefined,
+    port,
     async fetch(request) {
       try {
         if (process.lock) {
           return new Response("Service Unavailable", { status: 503 })
         }
 
-        let res: Response
-
         request.u = new URL(request.url)
-
-        // TODO: better config parsing
-        // TODO: better config validation
-        // TODO: better config error handling
-        // TODO: better logging
-
-        const hostHeader = request.headers.get("host")
-        const domainConfig = process.configuration.server?.find(e=>e.domain === hostHeader)
-
-        if (!domainConfig) {
-          res = new Response("Not Found", { status: 404 })
-
-        } else if (hostHeader && "pass" in domainConfig) { 
-          res = await proxyPass(request, domainConfig)
-
-        } else if ("static" in domainConfig) {
-          res = await serveStatic(request, domainConfig)
-
-        } else {
-          res = new Response("Not Found", { status: 404 })
-        }
-
+        const res = await action(request, process.cfg)
         return postResponse(res)
 
       } catch (e) {
@@ -58,7 +59,6 @@ async function main() {
 
 
   console.log("pid:",process.pid);
-  tls && console.log(`tls key: ${process.configuration.tls_key}, tls cert: ${process.configuration.tls_cert}`);
   console.log(`Listening in ${server.port}...`);
 
   process.server = server
