@@ -48,7 +48,7 @@ export class Result<T> {
       .pipe(async () => {
         const file = Bun.file(path)
         if (await file.exists()) { } else {
-          throw new Error("Not found")
+          throw new Error("File not found, " + file.name)
         }
         return file
       })
@@ -80,6 +80,11 @@ export class Result<T> {
       .pipe(e=>e.json())
     }
   }
+
+  static logErr(msg: string, err: Error) {
+    console.error(msg)
+    console.error(err)
+  }
 }
 
 export class SyncResult<T> {
@@ -94,8 +99,9 @@ export class SyncResult<T> {
     return data
   }
 
-  nullable() {
-    const { data } = this.handle()
+  nullable(opt?: { log?: string }) {
+    const { data, err } = this.handle()
+    err && opt?.log && Result.logErr(opt.log,err);
     return data
   }
 

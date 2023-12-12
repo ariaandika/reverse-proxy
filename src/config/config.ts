@@ -33,9 +33,9 @@ export function loadTls() {
   return new Result()
     .pipe(async () => {
       SyncResult.nonNull(
-        !process.cfg.domain ||
-        !process.cfg.domain.tlsKey ||
-        !process.cfg.domain.tlsCert
+        process.cfg.domain &&
+        process.cfg.domain.tlsKey &&
+        process.cfg.domain.tlsCert
       )
 
       const key = await Result.file(process.cfg.domain!.tlsKey!).unwrap()

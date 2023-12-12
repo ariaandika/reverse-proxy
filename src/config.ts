@@ -44,7 +44,11 @@ export type Add = {
   * })
   * ```
   */
-export const tlsRoot = <T extends Readonly<string>,Key extends string = "privkey.pem",Cert extends string = "fullchain.pem">(
+export const tlsRoot = <
+  T extends Readonly<string>,
+  Key extends string = "privkey.pem",
+  Cert extends string = "fullchain.pem"
+>(
   /** @example `/etc/letsencrypt` */
   root: T,
   /**
@@ -66,8 +70,8 @@ export const tlsRoot = <T extends Readonly<string>,Key extends string = "privkey
   const o = Object.assign({ key: "privkey.pem", cert: "fullchain.pem" },files)
   return {
     name: domain,
-    tlsKey: `${root}${domain}/${o.key}` as `${T}/${Domain}/${Key}`,
-    tlsCert: `${root}${domain}/${o.cert}` as `${T}/${Domain}/${Cert}`,
+    tlsKey: `${root}/${domain}/${o.key}` as `${T}/${Domain}/${Key}`,
+    tlsCert: `${root}/${domain}/${o.cert}` as `${T}/${Domain}/${Cert}`,
   }
 }
 
