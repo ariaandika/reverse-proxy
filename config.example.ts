@@ -1,4 +1,4 @@
-import { defineConfig, tlsRoot, server } from "./lib/config"
+import { defineConfig, tlsRoot, server } from "./src/config"
 
 const tls = tlsRoot("/etc/letsencrypt")
 const { static: serve, proxy } = server

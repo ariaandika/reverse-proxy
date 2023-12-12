@@ -1,8 +1,10 @@
 import { reloadConfig } from "./config";
+import { int } from "../lib"
 
 process.lock = false
 process.configdir = "config.ts"
 
+global.int = int
 
 process.on('SIGHUP',async () => {
   if (process.lock) { return }
@@ -14,7 +16,14 @@ process.on('SIGHUP',async () => {
   }
 
   process.lock = true
-  await reloadConfig()
+  const { data, err } = await reloadConfig().handle()
+
+  if (err) {
+    console.error("Failed to reload config,",err)
+  } else {
+    process.cfg = data
+  }
+
   process.lock = false
 })
 

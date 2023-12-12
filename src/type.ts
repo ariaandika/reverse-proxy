@@ -1,4 +1,5 @@
-import type { Actions, AutoConfig } from "../lib/config";
+import type { Actions, AutoConfig } from "./config";
+export type { Actions, Action, AutoConfig, Config } from "./config";
 
 declare global {
   interface Process {
@@ -10,28 +11,26 @@ declare global {
   interface Process {
     configuration: typeof process.cfg
     cfg: AutoConfig
+    action: (req: Request, config: Actions[keyof Actions]) => Promise<Response>
   }
   
   interface Request {
     u: URL
   }
 
-  type Action = (req: Request, config: Actions[keyof Actions]) => (Response|Promise<Response>)
-}
-
-
-let currentAction: Action | undefined = undefined
-
-export function getAction() {
-  return currentAction
+  namespace NodeJS {
+    interface ProcessEnv {
+      PORT: number
+    }
+  }
 }
 
 export function register<T extends keyof Actions>(
   type: T,
-  action: Action
+  action: (req: Request, config: Actions[T]) => Promise<Response>
 ) {
   if (process.cfg.type === type) {
-    currentAction = action
+    process.action = action as any
   }
 }
 
