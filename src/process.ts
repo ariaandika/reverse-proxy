@@ -1,7 +1,7 @@
 import { reloadConfig } from "./config";
 
 process.lock = false
-process.configdir = "config.json"
+process.configdir = "config.ts"
 
 
 process.on('SIGHUP',async () => {

@@ -2,11 +2,11 @@ import type { Config } from "../lib/config"
 
 export async function reloadConfig(init = false) {
   try {
-    const configFile = Bun.file(process.configdir)
+    // const configFile = Bun.file(process.configdir)
 
     console.log("loading config...")
 
-    if (await configFile.exists()) { } else {
+    if (await Bun.file(process.configdir).exists()) { } else {
       return configError(
         init,
         "config file not found, please create ./config.json in current directory",
@@ -14,8 +14,18 @@ export async function reloadConfig(init = false) {
       )
     }
 
+    const cwd = process.cwd()
+    const tmp = "/tmp/.bun/config.ts"
+
+    await Bun.write(tmp,`\
+    import conf from "${cwd}/config.ts"
+    console.log(JSON.stringify(conf))
+    `)
+
+    const conf = JSON.parse(Bun.spawnSync(["bun",tmp]).stdout.toString())
+
     let configData
-    configData = await configFile.json() as Config
+    configData = conf as Config
 
     if (!configData.servers) {
       return configError(init, "No server config, no changes made")
