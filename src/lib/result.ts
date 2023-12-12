@@ -5,8 +5,8 @@ export class Result<T> {
     let i = 0
     let data
     try {
-      for (let len = this.handle.length;i < len;i++) {
-        data = this._pipes[i]
+      for (let len = this._pipes.length;i < len;i++) {
+        data = await this._pipes[i](data)
       }
       return { data: data as T, err: void 0 }
     } catch (e) {
@@ -47,7 +47,7 @@ export class Result<T> {
     return new Result()
       .pipe(async () => {
         const file = Bun.file(path)
-        if (await file.exists()) {
+        if (await file.exists()) { } else {
           throw new Error("Not found")
         }
         return file
@@ -110,8 +110,8 @@ export class SyncResult<T> {
   handle() {
     try {
       let data
-      for (let i = 0, len = this.handle.length;i < len;i++) {
-        data = this._pipes[i]
+      for (let i = 0, len = this._pipes.length;i < len;i++) {
+        data = this._pipes[i](data)
       }
       return { data: data as T, err: void 0 }
     } catch (e) {
