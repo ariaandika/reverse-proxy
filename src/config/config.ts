@@ -22,7 +22,7 @@ export function reloadConfig() {
     .pipe(async config => {
       process.env.PORT = int(process.env.PORT).unwrap("PORT env variable is required")
 
-      SyncResult.nonNull(config.servers).unwrap("No server configured")
+      SyncResult.nonNull(config.servers)// .unwrap("No server configured")
 
       return SyncResult.find(config.servers!, e => e.port === process.env.PORT)
         .unwrap(`Config for port ${process.env.PORT} not found`)
@@ -36,7 +36,7 @@ export function loadTls() {
         !process.cfg.domain ||
         !process.cfg.domain.tlsKey ||
         !process.cfg.domain.tlsCert
-      ).unwrap()
+      )
 
       const key = await Result.file(process.cfg.domain!.tlsKey!).unwrap()
       const cert = await Result.file(process.cfg.domain!.tlsCert!).unwrap()
@@ -50,5 +50,9 @@ export function loadTls() {
 export function loadAction() {
   return new Result()
     .pipe(()=>import("../actions"))
-    .unwrapPipe(SyncResult.nonNull(process.action))
+    .pipe(()=>{
+      if (!process.action) {
+        throw new Error("No action registered")
+      }
+    })
 }

@@ -100,11 +100,8 @@ export class SyncResult<T> {
   }
 
   static nonNull<T>(val: T) {
-    return new SyncResult()
-      .pipe(() => {
-        if (!val) throw new Error("Value is undefined")
-        return val
-      })
+    if (!val) throw new Error("Value is undefined")
+    return val
   }
 
   handle() {
